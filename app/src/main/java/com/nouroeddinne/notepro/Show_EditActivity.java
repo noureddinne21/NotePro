@@ -3,10 +3,13 @@ package com.nouroeddinne.notepro;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -45,14 +48,34 @@ public class Show_EditActivity extends AppCompatActivity {
         back = findViewById(R.id.imageView_back);
         save = findViewById(R.id.imageView_save_edit);
 
+        charachter.setText("0");
+
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             id = Integer.parseInt(extras.getString("id"));
             title.setText(extras.getString("title"));
             note.setText(extras.getString("note"));
             date.setText(extras.getString("date"));
+            charachter.setText(String.valueOf(note.getText().length()));
         }
         db = new DataBaseHendler(this);
+
+        note.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                charachter.setText(String.valueOf(s.length()));
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
 
         back.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -67,18 +90,21 @@ public class Show_EditActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                if (title.getText().toString() != null && note.getText().toString() != null){
+                if (title.getText().toString() != null && note.getText().toString() != null && !title.getText().toString().isEmpty() && !note.getText().toString().isEmpty()){
                     if(id == 0){
                         db.addNote(new Note(title.getText().toString(),note.getText().toString(),getDate(),false));
                     }else {
-                        db.updatePerson(new Note(id,title.getText().toString(),note.getText().toString(),getDate()));
+                        db.updateNote(new Note(id,title.getText().toString(),note.getText().toString(),getDate()));
                     }
+                    Intent intent = new Intent(Show_EditActivity.this,HomeActivity.class);
+                    startActivity(intent);
+                    finish();
+                }else {
+                    Toast.makeText(Show_EditActivity.this, "Empty Note", Toast.LENGTH_SHORT).show();
                 }
 
 
-                Intent intent = new Intent(Show_EditActivity.this,HomeActivity.class);
-                startActivity(intent);
-                finish();
+
             }
         });
 
@@ -88,18 +114,28 @@ public class Show_EditActivity extends AppCompatActivity {
 
 
 
-    public String getDate(){
+//    public static String getDate(){
+//        Calendar calendar = Calendar.getInstance();
+//        int day = calendar.get(Calendar.DAY_OF_MONTH);
+//        int month = calendar.get(Calendar.MONTH);
+//        int year = calendar.get(Calendar.YEAR);
+//
+//        String currentDate = String.format("%02d-%02d-%04d", day, month + 1, year);
+//        return currentDate;
+//    }
+
+
+    public static String getDate() {
         Calendar calendar = Calendar.getInstance();
-        int day = calendar.get(Calendar.DAY_OF_MONTH);
-        int month = calendar.get(Calendar.MONTH);
         int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH) + 1; // Adding 1 because Calendar.MONTH is zero-based
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+        int hour = calendar.get(Calendar.HOUR_OF_DAY); // 24-hour format
+        int minute = calendar.get(Calendar.MINUTE);
 
-        String currentDate = String.format("%02d-%02d-%04d", day, month + 1, year);
-        return currentDate;
+        String currentDateTime = String.format("%04d-%02d-%02d %02d:%02d", year, month, day, hour, minute);
+        return currentDateTime;
     }
-
-
-
 
 
 

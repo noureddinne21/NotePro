@@ -27,7 +27,6 @@ import Model.Note;
 public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
     private Context context;
     private List<Note> noteList;
-    private boolean status =false;
     private DataBaseHendler db;
 
 
@@ -43,17 +42,15 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
     }
 
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+
         Note item = noteList.get(position);
-        holder.title.setText(FormatTextNote(item.getTitel(),0));
-        holder.note.setText(FormatTextNote(item.getNote(),1));
-        //holder.date.setText(item.getDate());
-        holder.date.setText(String.valueOf(item.getFavoraite()));
-        //Toast.makeText(context, String.valueOf(item.getFavoraite()), Toast.LENGTH_SHORT).show();
+        holder.title.setText(FormatTextNote(item.getTitel(),40));
+        holder.note.setText(FormatTextNote(item.getNote(),100));
+        holder.date.setText(item.getDate());
 
         db = new DataBaseHendler(context);
-        status = item.getFavoraite();
-        if (status){
-            holder.save.setImageResource(R.drawable.save_orange);
+        if (item.getFavoraite()){
+            holder.save.setImageResource(R.drawable.save_white);
         }else {
             holder.save.setImageResource(R.drawable.save);
         }
@@ -61,16 +58,18 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
         holder.save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(context,String.valueOf(db.updateFavorite(item.getId(),true)), Toast.LENGTH_SHORT).show();
-                Toast.makeText(context, String.valueOf(status), Toast.LENGTH_SHORT).show();
-                if (status){
-                    holder.save.setImageResource(R.drawable.save);
-                    Toast.makeText(context,String.valueOf(db.updateFavorite(item.getId(),true)), Toast.LENGTH_SHORT).show();
+
+                boolean newFavoriteStatus = !item.getFavoraite();
+                item.setFavoraite(newFavoriteStatus);
+                db.updateNote(item);
+                notifyDataSetChanged();
+
+                if (item.getFavoraite()){
+                    holder.save.setImageResource(R.drawable.save_white);
                 }else {
-                    holder.save.setImageResource(R.drawable.save_orange);
-                    Toast.makeText(context,String.valueOf(db.updateFavorite(item.getId(),true)), Toast.LENGTH_SHORT).show();
+                    holder.save.setImageResource(R.drawable.save);
                 }
-                HomeActivity.refsh();
+
             }
         });
 
@@ -109,37 +108,16 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
 
 
 
+    public String FormatTextNote(String s,int n){
 
-
-
-    public String FormatTextNote(String text,int num){
-
-        int numberCharachter;
-        if (num==0){
-            numberCharachter=40;
-        }else{
-            numberCharachter=140;
+        int length = s.length();
+        if(length>n){
+            s = s.substring(0,n);
+            s = s+"...";
+            return s;
         }
-
-        String s[] = text.split("\\n");
-        String newText=s[0]+"...",shortText="";
-        int lengthText = newText.length();
-
-        if (lengthText>numberCharachter){
-            for (int i=0;i<numberCharachter;i++){
-                if(i<numberCharachter-3){
-                    shortText = shortText + newText.charAt(i);
-                }else {
-                    shortText = shortText + ".";
-                }
-            }
-            return shortText;
-        }else {
-            return newText;
-        }
+        return s;
     }
-
-
 
 
 

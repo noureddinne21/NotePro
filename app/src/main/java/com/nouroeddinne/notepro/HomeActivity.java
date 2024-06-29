@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -19,6 +20,7 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -36,9 +38,8 @@ import MyAdapter.Adapter;
 public class HomeActivity extends AppCompatActivity {
     RecyclerView recyclerView;
     static RecyclerView.Adapter adapter;
-    ImageView save,setting;
+    ImageView save,setting,home;
     FloatingActionButton fab;
-    EditText search;
     List<Note> noteList;
     DataBaseHendler db;
     Context context= this;
@@ -57,9 +58,12 @@ public class HomeActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.recyclerView);
         save = findViewById(R.id.imageView_save);
+        home = findViewById(R.id.imageView2);
         setting = findViewById(R.id.imageView_setting);
         fab = findViewById(R.id.floatingActionButton);
-        search = findViewById(R.id.editText_search);
+
+        save.setImageResource(R.drawable.save_white);
+        home.setImageResource(R.drawable.notes_orange);
 
         db = new DataBaseHendler(context);
 
@@ -80,50 +84,90 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
 
-        search.addTextChangedListener(new TextWatcher() {
+        home.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                //Toast.makeText(context, s, Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-                noteList = db.searchNotes(String.valueOf(s));
+            public void onClick(View v) {
+                save.setImageResource(R.drawable.save_white);
+                home.setImageResource(R.drawable.notes_orange);
+                noteList = db.getAllNotes();
                 adapter = new Adapter(context,noteList);
                 recyclerView.setAdapter(adapter);
-
             }
+        });
 
+        save.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void afterTextChanged(Editable s) {
-                //Toast.makeText(context, s, Toast.LENGTH_SHORT).show();
+            public void onClick(View v) {
+                save.setImageResource(R.drawable.save_orange);
+                home.setImageResource(R.drawable.notes);
+
+                noteList = db.getSaveNotes();
+                adapter = new Adapter(context,noteList);
+                recyclerView.setAdapter(adapter);
             }
         });
         setting.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                Intent intent = new Intent(HomeActivity.this,SettingsActivity.class);
+                startActivity(intent);
+                finish();
             }
         });
 
+
+        for (Note n : noteList){
+            Log.d("TAG", "onCreate: "+n.getId()+" "+n.getTitel()+" "+n.getDate()+" "+n.getFavoraite());
+        }
+
+
     }
 
 
-    public static void refsh(){
-        adapter.notifyDataSetChanged();
-    }
 
 
-public boolean onCreateOptionsMenu(Menu menu) {
-    MenuInflater menuInflater = getMenuInflater();
-    menuInflater.inflate(menu_option,menu);
+
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(menu_option,menu);
+        SearchView searchView = (SearchView) menu.findItem(R.id.search_bar).getActionView();
+        searchView.setSubmitButtonEnabled(true);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                noteList = db.searchNotes(String.valueOf(query));
+                adapter = new Adapter(context,noteList);
+                recyclerView.setAdapter(adapter);
+                adapter.notifyDataSetChanged();
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                noteList = db.searchNotes(String.valueOf(newText));
+                adapter = new Adapter(context,noteList);
+                recyclerView.setAdapter(adapter);
+                adapter.notifyDataSetChanged();
+                return false;
+            }
+        });
+
+        searchView.setOnCloseListener(new SearchView.OnCloseListener() {
+            @Override
+            public boolean onClose() {
+                noteList = db.getAllNotes();
+                adapter = new Adapter(context,noteList);
+                recyclerView.setAdapter(adapter);
+                adapter.notifyDataSetChanged();
+                return false;
+            }
+        });
+
         return true;
-}
+    }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        Toast.makeText(context,String.valueOf(item.getItemId()), Toast.LENGTH_SHORT).show();
         return super.onOptionsItemSelected(item);
     }
 

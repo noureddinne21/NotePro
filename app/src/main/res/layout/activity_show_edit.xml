@@ -7,12 +7,14 @@
     android:layout_height="match_parent"
     android:background="@drawable/background_blue_to_lightblue"
     android:orientation="vertical"
-    android:padding="15dp"
     tools:context=".Show_EditActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="50dp"
+        android:layout_marginRight="10dp"
         android:orientation="horizontal">
 
         <LinearLayout
@@ -48,6 +50,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_margin="10dp"
         android:orientation="vertical">
 
         <LinearLayout
@@ -63,7 +66,8 @@
                 android:ems="10"
                 android:hint="Title"
                 android:inputType="text"
-                android:textColor="@color/white" />
+                android:textColor="@color/white"
+                android:textColorHint="@color/light_gray" />
         </LinearLayout>
 
         <LinearLayout
@@ -108,7 +112,8 @@
                 android:ems="10"
                 android:hint="Start typing"
                 android:inputType="text|textMultiLine"
-                android:textColor="@color/white" />
+                android:textColor="@color/white"
+                android:textColorHint="@color/light_gray" />
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

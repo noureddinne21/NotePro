@@ -37,6 +37,7 @@ public class SplashScreen extends AppCompatActivity {
                 // When the task is over
                 Intent intent = new Intent(SplashScreen.this,HomeActivity.class);
                 startActivity(intent);
+                finish();
             }
         }.start();
 
