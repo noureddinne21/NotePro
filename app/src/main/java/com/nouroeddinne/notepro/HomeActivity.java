@@ -67,7 +67,6 @@ public class HomeActivity extends AppCompatActivity {
 
         db = new DataBaseHendler(context);
 
-        recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
