@@ -1,12 +1,32 @@
 package Model;
 
-public class Note {
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+import androidx.room.TypeConverters;
 
+import com.nouroeddinne.notepro.DateCoverter;
+
+import java.io.Serializable;
+import java.util.Date;
+
+import Utles.Utel;
+
+@Entity(tableName = Utel.TABLE_NAME)
+@TypeConverters({DateCoverter.class})
+public class Note implements Serializable {
+    @PrimaryKey(autoGenerate = true)
+    @ColumnInfo(name = Utel.KEY_ID)
     private int id;
+    @ColumnInfo(name = Utel.KEY_TITLE)
     private String titel;
+    @ColumnInfo(name = Utel.KEY_NOTE)
     private String note;
+    @ColumnInfo(name = Utel.KEY_DATE)
     private String date;
+    @ColumnInfo(name = Utel.KEY_FAVORITE)
     private boolean favoraite;
+
 
 
     public Note(int id, String titel, String note, String date, boolean favoraite) {
@@ -29,7 +49,6 @@ public class Note {
         this.titel = titel;
         this.note = note;
         this.date = date;
-        this.favoraite = favoraite;
     }
 
     public Note(int id, boolean favoraite) {

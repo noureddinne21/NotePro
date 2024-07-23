@@ -18,12 +18,18 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -31,18 +37,30 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.List;
 
-import Database.DataBaseHendler;
 import Model.Note;
 import MyAdapter.Adapter;
 
 public class HomeActivity extends AppCompatActivity {
+    MyViewModel myViewModel;
     RecyclerView recyclerView;
     static RecyclerView.Adapter adapter;
     ImageView save,setting,home;
     FloatingActionButton fab;
-    List<Note> noteList;
-    DataBaseHendler db;
+    //List<Note> noteList;
+    //DataBaseHendler db;
     Context context= this;
+
+    ActivityResultLauncher<Intent> launchResult = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<ActivityResult>() {
+                @Override
+                public void onActivityResult(ActivityResult result) {
+                    if (result!=null&&result.getResultCode()==RESULT_OK){
+//                        Note e = (Note) result.getData().getSerializableExtra("note");
+//                        myViewModel.insertNote(e);
+                    }
+                }
+            });
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -65,14 +83,21 @@ public class HomeActivity extends AppCompatActivity {
         save.setImageResource(R.drawable.save_white);
         home.setImageResource(R.drawable.notes_orange);
 
-        db = new DataBaseHendler(context);
+//        db = new DataBaseHendler(context);
+        myViewModel = new ViewModelProvider(this).get(MyViewModel.class);
 
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        noteList = db.getAllNotes();
-        adapter = new Adapter(context,noteList);
-        recyclerView.setAdapter(adapter);
+        //noteList = db.getAllNotes();
+        myViewModel.getAllNotes().observe(this, new Observer<List<Note>>() {
+            @Override
+            public void onChanged(List<Note> notes) {
+                adapter = new Adapter(context,notes);
+                recyclerView.setAdapter(adapter);
+            }
+        });
+
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -88,9 +113,13 @@ public class HomeActivity extends AppCompatActivity {
             public void onClick(View v) {
                 save.setImageResource(R.drawable.save_white);
                 home.setImageResource(R.drawable.notes_orange);
-                noteList = db.getAllNotes();
-                adapter = new Adapter(context,noteList);
-                recyclerView.setAdapter(adapter);
+                myViewModel.getAllNotes().observe(HomeActivity.this, new Observer<List<Note>>() {
+                    @Override
+                    public void onChanged(List<Note> notes) {
+                        adapter = new Adapter(context,notes);
+                        recyclerView.setAdapter(adapter);
+                    }
+                });
             }
         });
 
@@ -100,9 +129,13 @@ public class HomeActivity extends AppCompatActivity {
                 save.setImageResource(R.drawable.save_orange);
                 home.setImageResource(R.drawable.notes);
 
-                noteList = db.getSaveNotes();
-                adapter = new Adapter(context,noteList);
-                recyclerView.setAdapter(adapter);
+                myViewModel.getAllSaveNote().observe(HomeActivity.this, new Observer<List<Note>>() {
+                    @Override
+                    public void onChanged(List<Note> notes) {
+                        adapter = new Adapter(context,notes);
+                        recyclerView.setAdapter(adapter);
+                    }
+                });
             }
         });
         setting.setOnClickListener(new View.OnClickListener() {
@@ -114,11 +147,9 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
 
-
-        for (Note n : noteList){
-            Log.d("TAG", "onCreate: "+n.getId()+" "+n.getTitel()+" "+n.getDate()+" "+n.getFavoraite());
-        }
-
+//        for (Note n : noteList){
+//            Log.d("TAG", "onCreate: "+n.getId()+" "+n.getTitel()+" "+n.getDate()+" "+n.getFavoraite());
+//        }
 
     }
 
@@ -134,19 +165,25 @@ public class HomeActivity extends AppCompatActivity {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                noteList = db.searchNotes(String.valueOf(query));
-                adapter = new Adapter(context,noteList);
-                recyclerView.setAdapter(adapter);
-                adapter.notifyDataSetChanged();
+                myViewModel.searchNotes(String.valueOf(query)).observe(HomeActivity.this, new Observer<List<Note>>() {
+                    @Override
+                    public void onChanged(List<Note> notes) {
+                        adapter = new Adapter(context,notes);
+                        recyclerView.setAdapter(adapter);
+                    }
+                });
                 return false;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                noteList = db.searchNotes(String.valueOf(newText));
-                adapter = new Adapter(context,noteList);
-                recyclerView.setAdapter(adapter);
-                adapter.notifyDataSetChanged();
+                myViewModel.searchNotes(String.valueOf(newText)).observe(HomeActivity.this, new Observer<List<Note>>() {
+                    @Override
+                    public void onChanged(List<Note> notes) {
+                        adapter = new Adapter(context,notes);
+                        recyclerView.setAdapter(adapter);
+                    }
+                });
                 return false;
             }
         });
@@ -154,10 +191,13 @@ public class HomeActivity extends AppCompatActivity {
         searchView.setOnCloseListener(new SearchView.OnCloseListener() {
             @Override
             public boolean onClose() {
-                noteList = db.getAllNotes();
-                adapter = new Adapter(context,noteList);
-                recyclerView.setAdapter(adapter);
-                adapter.notifyDataSetChanged();
+                myViewModel.getAllNotes().observe(HomeActivity.this, new Observer<List<Note>>() {
+                    @Override
+                    public void onChanged(List<Note> notes) {
+                        adapter = new Adapter(context,notes);
+                        recyclerView.setAdapter(adapter);
+                    }
+                });
                 return false;
             }
         });

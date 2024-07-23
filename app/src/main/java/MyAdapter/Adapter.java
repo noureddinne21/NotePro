@@ -9,17 +9,16 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelStoreOwner;
 import androidx.recyclerview.widget.RecyclerView;
-
+import com.nouroeddinne.notepro.DateCoverter;
 import com.nouroeddinne.notepro.HomeActivity;
+import com.nouroeddinne.notepro.MyViewModel;
 import com.nouroeddinne.notepro.R;
 import com.nouroeddinne.notepro.Show_EditActivity;
-
 import java.util.List;
-
-import Database.DataBaseHendler;
 import Model.Note;
 
 
@@ -27,8 +26,8 @@ import Model.Note;
 public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
     private Context context;
     private List<Note> noteList;
-    private DataBaseHendler db;
-
+//    private DataBaseHendler db;
+    MyViewModel myViewModel;
 
     public Adapter(Context context, List<Note> listitems) {
         this.context = context;
@@ -46,9 +45,12 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
         Note item = noteList.get(position);
         holder.title.setText(FormatTextNote(item.getTitel(),40));
         holder.note.setText(FormatTextNote(item.getNote(),100));
+//        holder.date.setText(DateCoverter.handleSelectedDate(item.getDate()));
         holder.date.setText(item.getDate());
 
-        db = new DataBaseHendler(context);
+//        db = new DataBaseHendler(context);
+        myViewModel = new ViewModelProvider((ViewModelStoreOwner) context).get(MyViewModel.class);
+
         if (item.getFavoraite()){
             holder.save.setImageResource(R.drawable.save_white);
         }else {
@@ -61,7 +63,8 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
 
                 boolean newFavoriteStatus = !item.getFavoraite();
                 item.setFavoraite(newFavoriteStatus);
-                db.updateNote(item);
+               // db.updateNote(item);
+                myViewModel.updateNote(item);
                 notifyDataSetChanged();
 
                 if (item.getFavoraite()){
@@ -78,10 +81,7 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
             public void onClick(View v) {
 
                 Intent intent = new Intent(context, Show_EditActivity.class);
-                intent.putExtra("id", String.valueOf(item.getId()));
-                intent.putExtra("title", item.getTitel());
-                intent.putExtra("note", item.getNote());
-                intent.putExtra("date", item.getDate());
+                intent.putExtra("note", item);
                 context.startActivity(intent);
             }
         });

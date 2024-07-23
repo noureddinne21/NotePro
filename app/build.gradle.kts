@@ -31,6 +31,9 @@ android {
 dependencies {
 
     implementation("com.readystatesoftware.sqliteasset:sqliteassethelper:+")
+    implementation( "androidx.room:room-runtime:2.6.1")
+    annotationProcessor( "androidx.room:room-compiler:2.6.1")
+
 
     implementation(libs.appcompat)
     implementation(libs.material)

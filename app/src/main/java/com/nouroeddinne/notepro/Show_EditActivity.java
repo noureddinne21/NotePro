@@ -1,11 +1,14 @@
 package com.nouroeddinne.notepro;
 
 import android.annotation.SuppressLint;
+import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -16,18 +19,20 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-
 import java.util.Calendar;
+import java.util.Date;
 
-import Database.DataBaseHendler;
 import Model.Note;
 
 public class Show_EditActivity extends AppCompatActivity {
     private TextView date ,charachter;
     private EditText title,note;
-    private DataBaseHendler db;
+    //private DataBaseHendler db;
     private ImageView back,save;
-    private int id=0;
+    private int id=-1;
+    Date currentDate;
+
+
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -52,13 +57,16 @@ public class Show_EditActivity extends AppCompatActivity {
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            id = Integer.parseInt(extras.getString("id"));
-            title.setText(extras.getString("title"));
-            note.setText(extras.getString("note"));
-            date.setText(extras.getString("date"));
+            Note noteExtras = (Note) extras.getSerializable("note");
+
+            id = noteExtras.getId();
+            title.setText(noteExtras.getTitel());
+            note.setText(noteExtras.getNote());
+//            date.setText(DateCoverter.handleSelectedDate(noteExtras.getDate()));
+            date.setText(noteExtras.getDate());
             charachter.setText(String.valueOf(note.getText().length()));
         }
-        db = new DataBaseHendler(this);
+        //db = new DataBaseHendler(this);
 
         note.addTextChangedListener(new TextWatcher() {
             @Override
@@ -89,20 +97,29 @@ public class Show_EditActivity extends AppCompatActivity {
         save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                try {
 
-                if (title.getText().toString() != null && note.getText().toString() != null && !title.getText().toString().isEmpty() && !note.getText().toString().isEmpty()){
-                    if(id == 0){
-                        db.addNote(new Note(title.getText().toString(),note.getText().toString(),getDate(),false));
-                    }else {
-                        db.updateNote(new Note(id,title.getText().toString(),note.getText().toString(),getDate()));
-                    }
-                    Intent intent = new Intent(Show_EditActivity.this,HomeActivity.class);
-                    startActivity(intent);
-                    finish();
+                Note n = new Note();
+                if (title.getText().toString() != null && note.getText().toString() != null && !title.getText().toString().isEmpty()){
+
+                        if(id == -1){
+                            //db.addNote(new Note(title.getText().toString(),note.getText().toString(),getDate(),false));
+                            n = new Note(title.getText().toString(),note.getText().toString(),"2021/11/21",false);
+                        }else {
+                            //db.updateNote(new Note(id,title.getText().toString(),note.getText().toString(),getDate()));
+                            n = new Note(id,title.getText().toString(),note.getText().toString(),"2021/11/21");
+                        }
+                        Intent intent = new Intent(Show_EditActivity.this,HomeActivity.class);
+                        intent.putExtra("note", n);
+                        setResult(RESULT_OK, intent);
+                        finish();
                 }else {
                     Toast.makeText(Show_EditActivity.this, "Empty Note", Toast.LENGTH_SHORT).show();
                 }
 
+            }catch (Exception e) {
+                Log.d("TAG", "onClick: "+ e.getMessage());
+            }
 
 
             }
@@ -113,37 +130,16 @@ public class Show_EditActivity extends AppCompatActivity {
 
 
 
-
-//    public static String getDate(){
-//        Calendar calendar = Calendar.getInstance();
-//        int day = calendar.get(Calendar.DAY_OF_MONTH);
-//        int month = calendar.get(Calendar.MONTH);
-//        int year = calendar.get(Calendar.YEAR);
-//
-//        String currentDate = String.format("%02d-%02d-%04d", day, month + 1, year);
-//        return currentDate;
-//    }
-
-
-    public static String getDate() {
-        Calendar calendar = Calendar.getInstance();
-        int year = calendar.get(Calendar.YEAR);
-        int month = calendar.get(Calendar.MONTH) + 1; // Adding 1 because Calendar.MONTH is zero-based
-        int day = calendar.get(Calendar.DAY_OF_MONTH);
-        int hour = calendar.get(Calendar.HOUR_OF_DAY); // 24-hour format
-        int minute = calendar.get(Calendar.MINUTE);
-
-        String currentDateTime = String.format("%04d-%02d-%02d %02d:%02d", year, month, day, hour, minute);
-        return currentDateTime;
+    private Date pickeDate() {
+        final Calendar c = Calendar.getInstance();
+        int year = c.get(Calendar.YEAR);
+        int month = c.get(Calendar.MONTH);
+        int day = c.get(Calendar.DAY_OF_MONTH);
+        Calendar selectedCalendar = Calendar.getInstance();
+        selectedCalendar.set(year, month, day);
+        currentDate= selectedCalendar.getTime();
+        return currentDate;
     }
-
-
-
-
-
-
-
-
 
 
 
