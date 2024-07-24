@@ -23,13 +23,13 @@ public class Note implements Serializable {
     @ColumnInfo(name = Utel.KEY_NOTE)
     private String note;
     @ColumnInfo(name = Utel.KEY_DATE)
-    private String date;
+    private Date date;
     @ColumnInfo(name = Utel.KEY_FAVORITE)
     private boolean favoraite;
 
 
 
-    public Note(int id, String titel, String note, String date, boolean favoraite) {
+    public Note(int id, String titel, String note, Date date, boolean favoraite) {
         this.id = id;
         this.titel = titel;
         this.note = note;
@@ -37,14 +37,14 @@ public class Note implements Serializable {
         this.favoraite = favoraite;
     }
 
-    public Note(String titel, String note, String date, boolean favoraite) {
+    public Note(String titel, String note, Date date, boolean favoraite) {
         this.titel = titel;
         this.note = note;
         this.date = date;
         this.favoraite = favoraite;
     }
 
-    public Note(int id, String titel, String note, String date) {
+    public Note(int id, String titel, String note, Date date) {
         this.id = id;
         this.titel = titel;
         this.note = note;
@@ -92,11 +92,11 @@ public class Note implements Serializable {
         this.note = note;
     }
 
-    public String getDate() {
+    public Date getDate() {
         return date;
     }
 
-    public void setDate(String date) {
+    public void setDate(Date date) {
         this.date = date;
     }
 }

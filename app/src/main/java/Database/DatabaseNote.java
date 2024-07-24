@@ -22,6 +22,9 @@ public abstract class DatabaseNote extends RoomDatabase {
 
     public abstract NoteDao noteDao();
     private static volatile DatabaseNote INSTANCE ;
+    private static final int NUMBER_OF_THREDS = 4;
+    static ExecutorService executorService = Executors.newFixedThreadPool(NUMBER_OF_THREDS);
+
     public static DatabaseNote getDatabase(final Context context) {
         if (INSTANCE == null) {
             synchronized (DatabaseNote.class) {

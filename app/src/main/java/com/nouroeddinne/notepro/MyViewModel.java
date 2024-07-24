@@ -24,6 +24,9 @@ public class MyViewModel extends AndroidViewModel {
     public LiveData<List<Note>> getAllNotes(){
         return reposetry.getAllNotes();
     }
+    public LiveData<List<Note>> getAllNotesByName(){
+        return reposetry.getAllNotesByName();
+    }
 
     public LiveData<List<Note>> searchNotes(String text){
         return reposetry.searchNotes(text);
@@ -35,6 +38,9 @@ public class MyViewModel extends AndroidViewModel {
 
     public LiveData<List<Note>> getAllSaveNote(){
         return reposetry.getAllSaveNote();
+    }
+    public LiveData<List<Note>> getAllSaveNoteByName(){
+        return reposetry.getAllSaveNoteByName();
     }
 
     public void deleteNote(int id){

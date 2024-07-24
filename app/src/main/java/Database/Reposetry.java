@@ -17,11 +17,20 @@ public class Reposetry {
     }
 
     public void insertNote(Note note){
-        noteDao.insertNote(note);
+        DatabaseNote.executorService.execute(new Runnable() {
+            @Override
+            public void run() {
+                noteDao.insertNote(note);
+            }
+        });
     }
 
     public LiveData<List<Note>> getAllNotes(){
         return noteDao.getAllNotes();
+    }
+
+    public LiveData<List<Note>> getAllNotesByName(){
+        return noteDao.getAllNotesByName();
     }
 
     public LiveData<List<Note>> searchNotes(String text){
@@ -29,15 +38,28 @@ public class Reposetry {
     }
 
     public void updateNote(Note note){
-        noteDao.updateNote(note);
+        DatabaseNote.executorService.execute(new Runnable() {
+            @Override
+            public void run() {
+                noteDao.updateNote(note);
+            }
+        });
     }
 
     public LiveData<List<Note>> getAllSaveNote(){
         return noteDao.getAllSaveNote();
     }
+    public LiveData<List<Note>> getAllSaveNoteByName(){
+        return noteDao.getAllSaveNoteByName();
+    }
 
     public void deleteNote(int id){
-        noteDao.deleteNote(id);
+        DatabaseNote.executorService.execute(new Runnable() {
+            @Override
+            public void run() {
+                noteDao.deleteNote(id);
+            }
+        });
     }
 
 

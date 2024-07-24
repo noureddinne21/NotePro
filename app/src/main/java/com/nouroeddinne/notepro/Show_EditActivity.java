@@ -1,12 +1,18 @@
 package com.nouroeddinne.notepro;
 
+import static java.security.AccessController.getContext;
+
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -15,24 +21,28 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.OnBackPressedCallback;
+import androidx.activity.OnBackPressedDispatcherOwner;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.lifecycle.ViewModelProvider;
+
 import java.util.Calendar;
 import java.util.Date;
 
 import Model.Note;
+import Utles.Utel;
 
 public class Show_EditActivity extends AppCompatActivity {
     private TextView date ,charachter;
     private EditText title,note;
-    //private DataBaseHendler db;
     private ImageView back,save;
     private int id=-1;
     Date currentDate;
-
-
+    MyViewModel myViewModel;
+    SharedPreferences sharedPreferences;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -53,7 +63,11 @@ public class Show_EditActivity extends AppCompatActivity {
         back = findViewById(R.id.imageView_back);
         save = findViewById(R.id.imageView_save_edit);
 
+        sharedPreferences = getSharedPreferences(Utel.SHAREDPREFERNCES_FILENAME_SETTINGS, Context.MODE_PRIVATE);
+
         charachter.setText("0");
+        myViewModel = new ViewModelProvider(this).get(MyViewModel.class);
+
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -62,11 +76,9 @@ public class Show_EditActivity extends AppCompatActivity {
             id = noteExtras.getId();
             title.setText(noteExtras.getTitel());
             note.setText(noteExtras.getNote());
-//            date.setText(DateCoverter.handleSelectedDate(noteExtras.getDate()));
-            date.setText(noteExtras.getDate());
+            date.setText(DateCoverter.handleSelectedDate(noteExtras.getDate()));
             charachter.setText(String.valueOf(note.getText().length()));
         }
-        //db = new DataBaseHendler(this);
 
         note.addTextChangedListener(new TextWatcher() {
             @Override
@@ -85,49 +97,70 @@ public class Show_EditActivity extends AppCompatActivity {
             }
         });
 
+
         back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(Show_EditActivity.this,HomeActivity.class);
-                startActivity(intent);
-                finish();
+                if (sharedPreferences.getBoolean(Utel.SHAREDPREFERNCES_AUTO_SAVE,false)!=false && sharedPreferences.getBoolean(Utel.SHAREDPREFERNCES_AUTO_SAVE,false)){
+                    insertNote();
+                }else {
+                    new AlertDialog.Builder(Show_EditActivity.this)
+                            .setTitle("Save")
+                            .setMessage("Are you want to save this note?")
+                            .setCancelable(false)
+                            .setPositiveButton("Save", (dialog, which) -> {
+                                // Handle positive button click (Save)
+                                insertNote();
+                            })
+                            .setNegativeButton("No", (dialog, which) -> {
+                                // Handle negative button click (No)
+                                Intent intent = new Intent(Show_EditActivity.this, HomeActivity.class);
+                                startActivity(intent);
+                                finish();
+                            })
+                            .show();
+                }
             }
         });
 
         save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try {
-
-                Note n = new Note();
-                if (title.getText().toString() != null && note.getText().toString() != null && !title.getText().toString().isEmpty()){
-
-                        if(id == -1){
-                            //db.addNote(new Note(title.getText().toString(),note.getText().toString(),getDate(),false));
-                            n = new Note(title.getText().toString(),note.getText().toString(),"2021/11/21",false);
-                        }else {
-                            //db.updateNote(new Note(id,title.getText().toString(),note.getText().toString(),getDate()));
-                            n = new Note(id,title.getText().toString(),note.getText().toString(),"2021/11/21");
-                        }
-                        Intent intent = new Intent(Show_EditActivity.this,HomeActivity.class);
-                        intent.putExtra("note", n);
-                        setResult(RESULT_OK, intent);
-                        finish();
-                }else {
-                    Toast.makeText(Show_EditActivity.this, "Empty Note", Toast.LENGTH_SHORT).show();
-                }
-
-            }catch (Exception e) {
-                Log.d("TAG", "onClick: "+ e.getMessage());
-            }
-
-
+                insertNote();
             }
         });
 
 
     }
 
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            if (sharedPreferences.getBoolean(Utel.SHAREDPREFERNCES_AUTO_SAVE,false)!=false && sharedPreferences.getBoolean(Utel.SHAREDPREFERNCES_AUTO_SAVE,false)){
+                    insertNote();
+            }else {
+                new AlertDialog.Builder(Show_EditActivity.this)
+                        .setTitle("Save")
+                        .setMessage("Are you want to save this note?")
+                        .setCancelable(false)
+                        .setPositiveButton("Save", (dialog, which) -> {
+                            // Handle positive button click (Save)
+                            insertNote();
+                        })
+                        .setNegativeButton("No", (dialog, which) -> {
+                            // Handle negative button click (No)
+                            Intent intent = new Intent(Show_EditActivity.this, HomeActivity.class);
+                            startActivity(intent);
+                            finish();
+                        })
+                        .show();
+            }
+            return true;
+        } else {
+            return super.onKeyDown(keyCode, event);
+        }
+    }
 
 
     private Date pickeDate() {
@@ -142,6 +175,26 @@ public class Show_EditActivity extends AppCompatActivity {
     }
 
 
+public void insertNote(){
+
+    Note n ;
+    if (title.getText().toString() != null && note.getText().toString() != null && !title.getText().toString().isEmpty() && !note.getText().toString().isEmpty()){
+        if(id == -1){
+            n = new Note(title.getText().toString(),note.getText().toString(),pickeDate(),false);
+            myViewModel.insertNote(n);
+        }else {
+            n = new Note(id,title.getText().toString(),note.getText().toString(),pickeDate());
+            myViewModel.updateNote(n);
+        }
+    }else {
+        Toast.makeText(Show_EditActivity.this, "Empty Note", Toast.LENGTH_SHORT).show();
+    }
+
+    Intent intent = new Intent(Show_EditActivity.this,HomeActivity.class);
+    startActivity(intent);
+    finish();
+
+}
 
 
 

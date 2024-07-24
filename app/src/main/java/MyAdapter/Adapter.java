@@ -10,6 +10,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStoreOwner;
 import androidx.recyclerview.widget.RecyclerView;
@@ -26,7 +27,6 @@ import Model.Note;
 public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
     private Context context;
     private List<Note> noteList;
-//    private DataBaseHendler db;
     MyViewModel myViewModel;
 
     public Adapter(Context context, List<Note> listitems) {
@@ -45,10 +45,8 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
         Note item = noteList.get(position);
         holder.title.setText(FormatTextNote(item.getTitel(),40));
         holder.note.setText(FormatTextNote(item.getNote(),100));
-//        holder.date.setText(DateCoverter.handleSelectedDate(item.getDate()));
-        holder.date.setText(item.getDate());
+        holder.date.setText(DateCoverter.handleSelectedDate(item.getDate()));
 
-//        db = new DataBaseHendler(context);
         myViewModel = new ViewModelProvider((ViewModelStoreOwner) context).get(MyViewModel.class);
 
         if (item.getFavoraite()){
@@ -63,7 +61,6 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
 
                 boolean newFavoriteStatus = !item.getFavoraite();
                 item.setFavoraite(newFavoriteStatus);
-               // db.updateNote(item);
                 myViewModel.updateNote(item);
                 notifyDataSetChanged();
 
@@ -83,6 +80,24 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
                 Intent intent = new Intent(context, Show_EditActivity.class);
                 intent.putExtra("note", item);
                 context.startActivity(intent);
+            }
+        });
+
+        holder.linear_show.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+
+                new AlertDialog.Builder(context)
+                        .setTitle("Delete")
+                        .setMessage("Are you sure you want to Delete Note?")
+                        .setCancelable(false)
+                        .setPositiveButton("Yes", (dialog, which) ->{
+                            myViewModel.deleteNote(item.getId());
+                        })
+                        .setNegativeButton("No", null)
+                        .show();
+
+                return false;
             }
         });
     }

@@ -69,7 +69,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom|right"
                 android:layout_margin="20dp"
-                android:src="@drawable/plus_blue" />
+                android:src="@drawable/plus_blue"
+                android:theme="@style/CustomwhiteStyle"/>
         </androidx.coordinatorlayout.widget.CoordinatorLayout>
     </LinearLayout>
 

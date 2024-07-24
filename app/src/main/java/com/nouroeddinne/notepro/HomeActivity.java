@@ -5,10 +5,12 @@ import static com.nouroeddinne.notepro.R.menu.menu_option;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -23,6 +25,7 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.core.graphics.Insets;
@@ -39,6 +42,7 @@ import java.util.List;
 
 import Model.Note;
 import MyAdapter.Adapter;
+import Utles.Utel;
 
 public class HomeActivity extends AppCompatActivity {
     MyViewModel myViewModel;
@@ -46,21 +50,8 @@ public class HomeActivity extends AppCompatActivity {
     static RecyclerView.Adapter adapter;
     ImageView save,setting,home;
     FloatingActionButton fab;
-    //List<Note> noteList;
-    //DataBaseHendler db;
     Context context= this;
-
-    ActivityResultLauncher<Intent> launchResult = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(),
-            new ActivityResultCallback<ActivityResult>() {
-                @Override
-                public void onActivityResult(ActivityResult result) {
-                    if (result!=null&&result.getResultCode()==RESULT_OK){
-//                        Note e = (Note) result.getData().getSerializableExtra("note");
-//                        myViewModel.insertNote(e);
-                    }
-                }
-            });
+    SharedPreferences sharedPreferences;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -83,20 +74,14 @@ public class HomeActivity extends AppCompatActivity {
         save.setImageResource(R.drawable.save_white);
         home.setImageResource(R.drawable.notes_orange);
 
-//        db = new DataBaseHendler(context);
         myViewModel = new ViewModelProvider(this).get(MyViewModel.class);
 
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        //noteList = db.getAllNotes();
-        myViewModel.getAllNotes().observe(this, new Observer<List<Note>>() {
-            @Override
-            public void onChanged(List<Note> notes) {
-                adapter = new Adapter(context,notes);
-                recyclerView.setAdapter(adapter);
-            }
-        });
+        sharedPreferences = getSharedPreferences(Utel.SHAREDPREFERNCES_FILENAME_SETTINGS, Context.MODE_PRIVATE);
+
+        loadAllNote();
 
 
         fab.setOnClickListener(new View.OnClickListener() {
@@ -104,7 +89,6 @@ public class HomeActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(HomeActivity.this,Show_EditActivity.class);
                 startActivity(intent);
-                finish();
             }
         });
 
@@ -113,13 +97,7 @@ public class HomeActivity extends AppCompatActivity {
             public void onClick(View v) {
                 save.setImageResource(R.drawable.save_white);
                 home.setImageResource(R.drawable.notes_orange);
-                myViewModel.getAllNotes().observe(HomeActivity.this, new Observer<List<Note>>() {
-                    @Override
-                    public void onChanged(List<Note> notes) {
-                        adapter = new Adapter(context,notes);
-                        recyclerView.setAdapter(adapter);
-                    }
-                });
+                loadAllNote();
             }
         });
 
@@ -128,14 +106,7 @@ public class HomeActivity extends AppCompatActivity {
             public void onClick(View v) {
                 save.setImageResource(R.drawable.save_orange);
                 home.setImageResource(R.drawable.notes);
-
-                myViewModel.getAllSaveNote().observe(HomeActivity.this, new Observer<List<Note>>() {
-                    @Override
-                    public void onChanged(List<Note> notes) {
-                        adapter = new Adapter(context,notes);
-                        recyclerView.setAdapter(adapter);
-                    }
-                });
+                loadAllNoteSave();
             }
         });
         setting.setOnClickListener(new View.OnClickListener() {
@@ -191,13 +162,7 @@ public class HomeActivity extends AppCompatActivity {
         searchView.setOnCloseListener(new SearchView.OnCloseListener() {
             @Override
             public boolean onClose() {
-                myViewModel.getAllNotes().observe(HomeActivity.this, new Observer<List<Note>>() {
-                    @Override
-                    public void onChanged(List<Note> notes) {
-                        adapter = new Adapter(context,notes);
-                        recyclerView.setAdapter(adapter);
-                    }
-                });
+                loadAllNote();
                 return false;
             }
         });
@@ -211,10 +176,73 @@ public class HomeActivity extends AppCompatActivity {
     }
 
 
+    public void loadAllNote(){
+
+        if (sharedPreferences.getInt(Utel.SHAREDPREFERNCES_SORT_TEXT,-1)!=-1){
+            if (sharedPreferences.getInt(Utel.SHAREDPREFERNCES_SORT_TEXT,-1)==1){
+                myViewModel.getAllNotesByName().observe(HomeActivity.this, new Observer<List<Note>>() {
+                    @Override
+                    public void onChanged(List<Note> notes) {
+                        adapter = new Adapter(context,notes);
+                        recyclerView.setAdapter(adapter);
+                    }
+                });
+            }else{
+                myViewModel.getAllNotes().observe(this, new Observer<List<Note>>() {
+                    @Override
+                    public void onChanged(List<Note> notes) {
+                        adapter = new Adapter(context,notes);
+                        recyclerView.setAdapter(adapter);
+                    }
+                });
+            }
+        }
+
+    }
 
 
+    public void loadAllNoteSave(){
+
+        if (sharedPreferences.getInt(Utel.SHAREDPREFERNCES_SORT_TEXT,-1)!=-1){
+            if (sharedPreferences.getInt(Utel.SHAREDPREFERNCES_SORT_TEXT,-1)==1){
+                myViewModel.getAllSaveNoteByName().observe(HomeActivity.this, new Observer<List<Note>>() {
+                    @Override
+                    public void onChanged(List<Note> notes) {
+                        adapter = new Adapter(context,notes);
+                        recyclerView.setAdapter(adapter);
+                    }
+                });
+            }else{
+                myViewModel.getAllSaveNote().observe(this, new Observer<List<Note>>() {
+                    @Override
+                    public void onChanged(List<Note> notes) {
+                        adapter = new Adapter(context,notes);
+                        recyclerView.setAdapter(adapter);
+                    }
+                });
+            }
+        }
+
+    }
 
 
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+
+            new AlertDialog.Builder(HomeActivity.this)
+                    .setTitle("Exit")
+                    .setMessage("Are you sure you want to Exit?")
+                    .setCancelable(false)
+                    .setPositiveButton("Yes", (dialog, which) -> finish())
+                    .setNegativeButton("No", null)
+                    .show();
+
+            return true;
+        } else {
+            return super.onKeyDown(keyCode, event);
+        }
+    }
 
 
 

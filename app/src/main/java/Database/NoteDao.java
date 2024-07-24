@@ -16,8 +16,10 @@ public interface NoteDao {
     @Insert
     void insertNote(Note note);
 
-    @Query("SELECT * FROM "+ Utel.TABLE_NAME +" ORDER BY "+Utel.KEY_DATE+" ASC")
+    @Query("SELECT * FROM "+ Utel.TABLE_NAME +" ORDER BY "+Utel.KEY_DATE+" DESC")
     LiveData<List<Note>> getAllNotes();
+    @Query("SELECT * FROM "+ Utel.TABLE_NAME +" ORDER BY "+Utel.KEY_TITLE+" ASC")
+    LiveData<List<Note>> getAllNotesByName();
 
     @Query("SELECT * FROM " + Utel.TABLE_NAME + " WHERE " + Utel.KEY_NOTE + " LIKE '%' || :text || '%' OR " + Utel.KEY_TITLE + " LIKE '%' || :text || '%'")
     LiveData<List<Note>> searchNotes(String text);
@@ -25,8 +27,11 @@ public interface NoteDao {
     @Update
     void updateNote(Note note);
 
-    @Query("SELECT * FROM " + Utel.TABLE_NAME + " WHERE "+Utel.KEY_FAVORITE+"=1 ")
+    @Query("SELECT * FROM " + Utel.TABLE_NAME + " WHERE "+Utel.KEY_FAVORITE+"=1 ORDER BY "+Utel.KEY_DATE+" DESC")
     LiveData<List<Note>> getAllSaveNote();
+
+    @Query("SELECT * FROM " + Utel.TABLE_NAME + " WHERE "+Utel.KEY_FAVORITE+"=1 ORDER BY "+Utel.KEY_TITLE+" ASC")
+    LiveData<List<Note>> getAllSaveNoteByName();
 
     @Query("DELETE FROM " + Utel.TABLE_NAME + " WHERE " + Utel.KEY_ID + " = :id")
     void deleteNote(int id);
