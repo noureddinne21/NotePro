@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
@@ -23,10 +24,10 @@ import androidx.core.view.WindowInsetsCompat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-
 import Model.ModelSpinner;
 import MyAdapter.AdapterSpinner;
 import Utles.Utel;
+
 
 public class SettingsActivity extends AppCompatActivity {
     Spinner spinnerSize,spinnerSort;
@@ -36,6 +37,7 @@ public class SettingsActivity extends AppCompatActivity {
     SharedPreferences sharedPreferences;
     AdapterSpinner adapterSpinner;
     Switch autoSave;
+    Button backup,restore;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -53,6 +55,12 @@ public class SettingsActivity extends AppCompatActivity {
         spinnerSort = findViewById(R.id.spinner_sort_note);
         back = findViewById(R.id.linear_back);
         autoSave = findViewById(R.id.switch1);
+        backup = findViewById(R.id.buttonBackup);
+        restore = findViewById(R.id.buttonRestore);
+
+        RoomBackup backup = new RoomBackup(this);
+
+
 
         sharedPreferences = getSharedPreferences(Utel.SHAREDPREFERNCES_FILENAME_SETTINGS, Context.MODE_PRIVATE);
 
@@ -115,6 +123,36 @@ public class SettingsActivity extends AppCompatActivity {
                 finish();
             }
         });
+
+
+        backup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+
+
+
+        restore.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+
+
+
+
+
+
+
+
+
+
+
+
+
     }
 
     @Override
@@ -128,6 +166,29 @@ public class SettingsActivity extends AppCompatActivity {
             return super.onKeyDown(keyCode, event);
         }
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 }

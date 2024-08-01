@@ -1,6 +1,9 @@
+import org.gradle.internal.impldep.com.amazonaws.auth.profile.internal.AllProfiles
+
 plugins {
-    alias(libs.plugins.android.application)
+    id("com.android.application")
 }
+
 
 android {
     namespace = "com.nouroeddinne.notepro"
@@ -10,8 +13,8 @@ android {
         applicationId = "com.nouroeddinne.notepro"
         minSdk = 28
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -30,9 +33,13 @@ android {
 
 dependencies {
 
+    implementation("com.github.rafi0101:Android-Room-Database-Backup:1.0.0")
+
+
     implementation("com.readystatesoftware.sqliteasset:sqliteassethelper:+")
     implementation( "androidx.room:room-runtime:2.6.1")
     annotationProcessor( "androidx.room:room-compiler:2.6.1")
+
 
 
     implementation(libs.appcompat)
