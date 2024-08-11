@@ -33,7 +33,7 @@ android {
 
 dependencies {
 
-    implementation("com.github.rafi0101:Android-Room-Database-Backup:1.0.0")
+    implementation("de.raphaelebner:roomdatabasebackup:1.0.1")
 
 
     implementation("com.readystatesoftware.sqliteasset:sqliteassethelper:+")

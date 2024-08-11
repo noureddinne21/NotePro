@@ -1,11 +1,22 @@
 package com.nouroeddinne.notepro;
 
+import static de.raphaelebner.roomdatabasebackup.core.RoomBackup.BACKUP_FILE_LOCATION_EXTERNAL;
+
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.provider.Settings;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AdapterView;
@@ -17,19 +28,36 @@ import android.widget.Switch;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import Database.DatabaseNote;
+import de.raphaelebner.roomdatabasebackup.*;
+
+import de.raphaelebner.roomdatabasebackup.core.RoomBackup;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import Model.ModelSpinner;
 import MyAdapter.AdapterSpinner;
 import Utles.Utel;
+import de.raphaelebner.roomdatabasebackup.core.RoomBackup;
 
 
 public class SettingsActivity extends AppCompatActivity {
+
     Spinner spinnerSize,spinnerSort;
     ArrayList<ModelSpinner> listSizeText = new ArrayList<>(Arrays.asList(new ModelSpinner("Small"),new ModelSpinner("Medium"),new ModelSpinner("Large")));
     ArrayList<ModelSpinner> listSortNote = new ArrayList<>(Arrays.asList(new ModelSpinner("Date"),new ModelSpinner("Name")));
@@ -38,6 +66,11 @@ public class SettingsActivity extends AppCompatActivity {
     AdapterSpinner adapterSpinner;
     Switch autoSave;
     Button backup,restore;
+
+    //final RoomBackup roomBackup = new RoomBackup(SettingsActivity.this);
+
+    private static final int REQUEST_PERMISSION_CODE = 2;
+
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -58,12 +91,8 @@ public class SettingsActivity extends AppCompatActivity {
         backup = findViewById(R.id.buttonBackup);
         restore = findViewById(R.id.buttonRestore);
 
-        RoomBackup backup = new RoomBackup(this);
-
-
 
         sharedPreferences = getSharedPreferences(Utel.SHAREDPREFERNCES_FILENAME_SETTINGS, Context.MODE_PRIVATE);
-
         if (sharedPreferences.getBoolean(Utel.SHAREDPREFERNCES_AUTO_SAVE,false)!=false){
             autoSave.setChecked(sharedPreferences.getBoolean(Utel.SHAREDPREFERNCES_AUTO_SAVE,false));
         }
@@ -129,6 +158,24 @@ public class SettingsActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
+//                roomBackup.database(DatabaseNote.getDatabase(getApplicationContext()));
+//                roomBackup.enableLogDebug(true); // Enable debug logging
+//                roomBackup.backupIsEncrypted(false); // Set whether the backup is encrypted
+//                roomBackup.backupLocation(BACKUP_FILE_LOCATION_EXTERNAL); // Set backup location
+//                roomBackup.backupLocationCustomFile(new File(SettingsActivity.this.getFilesDir() + "/databasebackup/geilesBackup.sqlite3"));
+//                roomBackup.maxFileCount(5); // Set maximum number of backup files
+//
+//                // Set a callback to handle completion
+//                roomBackup.onCompleteListener((success, message, exitCode) -> {
+//                    Log.d("TAG", "Backup complete. Success: " + success + ", Message: " + message + ", ExitCode: " + exitCode);
+//                    if (success) {
+//                        // Optionally restart the app after backup
+//                        Toast.makeText(SettingsActivity.this, "Success path "+SettingsActivity.this.getFilesDir() , Toast.LENGTH_LONG).show();
+//                    }
+//                });
+//
+//                // Start the backup process
+//                roomBackup.backup();
             }
         });
 
@@ -137,6 +184,22 @@ public class SettingsActivity extends AppCompatActivity {
         restore.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+
+
+//                roomBackup.database(DatabaseNote.getDatabase(getApplicationContext()));
+//                roomBackup.enableLogDebug(true); // Enable debug logging
+//                roomBackup.backupIsEncrypted(false); // Set whether the backup is encrypted
+//                roomBackup.backupLocation(BACKUP_FILE_LOCATION_EXTERNAL); // Set backup location
+//                roomBackup.backupLocationCustomFile(new File(SettingsActivity.this.getFilesDir() + "/databasebackup/geilesBackup.sqlite3"));
+//
+//                roomBackup.onCompleteListener((success, message, exitCode) -> {
+//                    Log.d("TAG", "oncomplete: " + success + ", message: " + message + ", exitCode: " + exitCode);
+//                    if (success)
+//                        roomBackup.restartApp(new Intent(getApplicationContext(), SettingsActivity.class));
+//                });
+//                roomBackup.restore();
+
 
             }
         });
@@ -154,6 +217,7 @@ public class SettingsActivity extends AppCompatActivity {
 
 
     }
+
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -180,35 +244,4 @@ public class SettingsActivity extends AppCompatActivity {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
