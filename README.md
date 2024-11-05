@@ -36,7 +36,7 @@ To get started with the Note Pro app locally, follow these steps:
 
 Clone the repository:
 
-git clone https://github.com/yourusername/note-pro-app.git
+git clone https://github.com/noureddinne21/NotePro.git
 ### Open the project in Android Studio:
 
 Launch Android Studio and open the cloned repository.
