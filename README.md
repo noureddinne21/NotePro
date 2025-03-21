@@ -60,9 +60,13 @@ This app follows the MVVM (Model-View-ViewModel) design pattern, which helps to 
 Model: Manages the data and business logic. In this app, it consists of the Room Database entities and the DAO (Data Access Object).
 View: Represents the UI components (Activities/Fragments) where users interact with the app.
 ViewModel: Holds and manages UI-related data in a lifecycle-conscious way. It communicates between the View and the Model.
+
 ## License
+
 This project is licensed under the MIT License - see the LICENSE file for details.
 
+## Support
 
-
+For technical support or feature requests, please contact:
+*[noureddinne.office@gmail.com]*
 
